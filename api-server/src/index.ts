@@ -70,6 +70,31 @@ async function initializeRedis() {
   }
 }
 
+async function setupMiddleware(app: express.Express) {
+  app.use(
+    session({
+      resave: false,
+      saveUninitialized: true,
+      secret: process.env.SESSION_SECRET!,
+    })
+  );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use(express.json());
+  app.use(cors({ origin: "*" }));
+
+  app.get("/", (req, res) => {
+    res.send("Hello from launch pilot");
+  });
+
+  app.use("/api/v1/project", projectRoute);
+  app.use("/api/v1/user", userRoute);
+  app.use("/api/v1/auth", authRoute);
+  app.use("/api/v1/analytics", analytics);
+}
+
 async function startServer() {
   try {
     await initializeCassandra();
@@ -77,16 +102,8 @@ async function startServer() {
 
     const app = express();
 
-    app.use(
-      session({
-        resave: false,
-        saveUninitialized: true,
-        secret: process.env.SESSION_SECRET!,
-      })
-    );
-
-    app.use(passport.initialize());
-    app.use(passport.session());
+    // Setup middleware and routes
+    setupMiddleware(app);
 
     passport.serializeUser((user, cb) => {
       cb(null, user);
@@ -144,18 +161,6 @@ async function startServer() {
         }
       )
     );
-
-    app.use(express.json());
-    app.use(cors({ origin: "*" }));
-
-    app.get("/", (req, res) => {
-      res.send("Hello from launch pilot");
-    });
-
-    app.use("/api/v1/project", projectRoute);
-    app.use("/api/v1/user", userRoute);
-    app.use("/api/v1/auth", authRoute);
-    app.use("/api/v1/analytics", analytics);
 
     app.listen(PORT, () => {
       setInterval(pingExternalServer, 30000);
