@@ -94,7 +94,6 @@ async function setupMiddleware(app: express.Express) {
   app.use("/api/v1/auth", authRoute);
   app.use("/api/v1/analytics", analytics);
 }
-
 async function startServer() {
   try {
     await initializeCassandra();
