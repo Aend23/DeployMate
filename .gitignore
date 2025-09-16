@@ -1,0 +1,11 @@
+*/node_modules
+*/prisma/migrations
+
+*/build
+*/.env
+proxyServer/.env
+*/src/services/scb.zip
+
+*/dist
+*/*/prisma/migrations
+.DS_STORE
